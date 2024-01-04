@@ -165,6 +165,7 @@ static void p3() {
         c++;
         int x = GetSystemMetrics(0);
         int y = GetSystemMetrics(1);
+        randomize();
         StretchBlt(hdc, 20, 0, x - 40, y, hdc, 0, 0, x, y, SRCPAINT);
         StretchBlt(hdc, 0, 20, x, y - 40, hdc, 0, 0, x, y, SRCPAINT);
         HBRUSH brush = CreateSolidBrush(rand_color());
