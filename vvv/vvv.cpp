@@ -13,32 +13,11 @@ COLORREF rand_color() {
     return RGB(rand() % 255, rand() % 255, rand() % 255);
 }
 
-BOOL WINAPI ctrl(DWORD fdwCtrlType) {
-
-    STARTUPINFO si = {};
-    PROCESS_INFORMATION pi = {};
-
-    WCHAR p[MAX_PATH];
-    if (GetModuleFileName(NULL, p, MAX_PATH)) {
-        if (CreateProcess(0, p, 0, 0, 0, 0, 0, 0, &si, &pi)) {
-            CloseHandle(pi.hProcess);
-            CloseHandle(pi.hThread);
-        }
-    }
-
-    ExitProcess(0);
-
-    return TRUE;
-}
-
-
 static int randomize() {
     MEMORYSTATUSEX ms{};
     ms.dwLength = sizeof(ms);
-
     int mt = 0;
     int ma = 0;
-
     if (GlobalMemoryStatusEx(&ms)) {
         mt = ms.ullTotalPhys;
         ma = ms.ullAvailPhys;
@@ -46,17 +25,12 @@ static int randomize() {
     else {
         return 0;
     }
-
     int dvm, dsm, ssm = 0;
-
     IDXGIFactory* pf = nullptr;
-
     if (CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&pf) == S_OK) {
         IDXGIAdapter* pa;
-
         if (pf->EnumAdapters(0, &pa) == S_OK) {
             DXGI_ADAPTER_DESC ad;
-
             if (pa->GetDesc(&ad) == S_OK) {
                 dvm = ad.DedicatedVideoMemory;
                 dsm = ad.DedicatedSystemMemory;
@@ -75,12 +49,11 @@ static int randomize() {
     else {
         return 0;
     }
-
     int hwid{};
     HW_PROFILE_INFO hwProfileInfo;
-    if (GetCurrentHwProfile(&hwProfileInfo))
+    if (GetCurrentHwProfile(&hwProfileInfo)) {
         hwid = (int)hwProfileInfo.szHwProfileGuid;
-
+    }
     LARGE_INTEGER t, freq;
     if (!QueryPerformanceFrequency(&freq)) {
         return 0;
@@ -89,9 +62,7 @@ static int randomize() {
         return 0;
     }
     double wt = (double)t.QuadPart / freq.QuadPart;
-
     double ct;
-
     FILETIME a, b, c, d;
     if (GetProcessTimes(GetCurrentProcess(), &a, &b, &c, &d) != 0) {
         ct = (double)(d.dwLowDateTime | ((unsigned long long)d.dwHighDateTime << 32)) * 0.0000001;
@@ -99,7 +70,6 @@ static int randomize() {
     else {
         return 0;
     }
-
     srand((((((unsigned int)time(0) << (unsigned int)hwid >> (unsigned int)ct * 0x23 ^ 0xFF3E) ^ static_cast<unsigned int>(sin((unsigned int)clock())) >> (unsigned int)wt) ^ 0xFF << 0x3 + (unsigned int)ma) * (unsigned int)mt ^ 2 << (unsigned int)dvm >> (unsigned int)dsm >> (unsigned int)ssm) ^ (unsigned int)__rdtsc() ^ 0xF3 >> 0x877);
 }
 
