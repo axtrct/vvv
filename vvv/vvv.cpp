@@ -230,6 +230,7 @@ static void invert() {
         int x = GetSystemMetrics(0);
         int y = GetSystemMetrics(1);
         BitBlt(hdc, 0, 0, x, y, hdc, 0, 0, DSTINVERT);
+        Sleep(5E3);
     }
 }
 
